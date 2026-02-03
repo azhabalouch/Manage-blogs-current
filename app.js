@@ -24,6 +24,14 @@ class BlogManager {
         const savedBlogs = localStorage.getItem('blogs');
         if (savedBlogs) {
             this.blogs = JSON.parse(savedBlogs);
+        } else {
+            // Try to recover from backup if main data is missing
+            const backup = localStorage.getItem('blogs_backup');
+            if (backup) {
+                this.blogs = JSON.parse(backup);
+                this.saveBlogs(); // Restore from backup
+                console.log('Restored from backup');
+            }
         }
     }
 
@@ -304,8 +312,9 @@ class BlogManager {
         const blog = this.blogs.find(b => b.id === id);
         if (blog) {
             blog.completed = !blog.completed;
-            this.saveBlogs();
+            this.saveBlogs(); // Save immediately
             this.renderBlogs();
+            this.renderCalendar(); // Update calendar to reflect completion status
         }
     }
 
@@ -455,6 +464,12 @@ class BlogManager {
         syncBtn.textContent = '⏳ Syncing...';
 
         try {
+            // Ensure data is saved locally before syncing
+            this.saveBlogs();
+            
+            // Create backup before sync
+            localStorage.setItem('blogs_backup', JSON.stringify(this.blogs));
+            
             // Prepare blog data
             const blogData = {
                 blogs: this.blogs,
@@ -464,6 +479,11 @@ class BlogManager {
 
             // GitHub API endpoint
             const [owner, repoName] = settings.repo.split('/');
+            
+            if (!owner || !repoName) {
+                throw new Error('Invalid repository format. Use: owner/repository');
+            }
+            
             const apiUrl = `https://api.github.com/repos/${owner}/${repoName}/contents/blogs.json`;
 
             // Check if file exists
@@ -479,8 +499,15 @@ class BlogManager {
                 if (checkResponse.ok) {
                     const fileData = await checkResponse.json();
                     sha = fileData.sha;
+                } else if (checkResponse.status !== 404) {
+                    // If it's not a 404, it might be an auth or permission issue
+                    const errorData = await checkResponse.json();
+                    throw new Error(errorData.message || 'Failed to access repository');
                 }
             } catch (error) {
+                if (error.message && !error.message.includes('fetch')) {
+                    throw error; // Re-throw if it's not a network error
+                }
                 console.log('File does not exist yet, will create new');
             }
 
@@ -503,7 +530,18 @@ class BlogManager {
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.message || 'Failed to sync to GitHub');
+                let errorMessage = error.message || 'Failed to sync to GitHub';
+                
+                // Provide helpful error messages
+                if (response.status === 404) {
+                    errorMessage = 'Repository not found. Check your repository name (format: owner/repo)';
+                } else if (response.status === 401) {
+                    errorMessage = 'Invalid GitHub token. Please check your Personal Access Token';
+                } else if (response.status === 403) {
+                    errorMessage = 'Permission denied. Ensure your token has "repo" scope';
+                }
+                
+                throw new Error(errorMessage);
             }
 
             const result = await response.json();
@@ -535,6 +573,41 @@ class BlogManager {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Export data as JSON file for manual backup
+    exportData() {
+        const dataStr = JSON.stringify(this.blogs, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `blog-backup-${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        this.showToast('Data exported successfully!', 'success');
+    }
+
+    // Import data from JSON file
+    importData(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const importedBlogs = JSON.parse(e.target.result);
+                if (Array.isArray(importedBlogs)) {
+                    this.blogs = importedBlogs;
+                    this.saveBlogs();
+                    this.renderBlogs();
+                    this.renderCalendar();
+                    this.showToast('Data imported successfully!', 'success');
+                } else {
+                    this.showToast('Invalid data format', 'error');
+                }
+            } catch (error) {
+                this.showToast('Failed to import data', 'error');
+            }
+        };
+        reader.readAsText(file);
     }
 
     // Calendar Methods
