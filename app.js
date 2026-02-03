@@ -11,78 +11,37 @@ class BlogManager {
         this.init();
     }
 
-    init() {
-        this.loadBlogs();
-        this.loadExistingFiles();
+    async init() {
+        await this.loadBlogs();
         this.setupEventListeners();
         this.renderBlogs();
         this.renderCalendar();
     }
 
-    // Load blogs from localStorage
-    loadBlogs() {
-        const savedBlogs = localStorage.getItem('blogs');
-        if (savedBlogs) {
-            this.blogs = JSON.parse(savedBlogs);
-        } else {
-            // Try to recover from backup if main data is missing
-            const backup = localStorage.getItem('blogs_backup');
-            if (backup) {
-                this.blogs = JSON.parse(backup);
-                this.saveBlogs(); // Restore from backup
-                console.log('Restored from backup');
-            }
-        }
+    // Load blogs from blogs.json on every page load
+    async loadBlogs() {
+        // Always load fresh from blogs.json
+        await this.loadFromJson();
     }
 
-    // Load existing blogs from blogs.json only
-    async loadExistingFiles() {
-        if (this.blogs.length === 0) {
-            // Load from blogs.json
-            try {
-                const jsonResponse = await fetch('blogs.json');
-                if (jsonResponse.ok) {
-                    const jsonData = await jsonResponse.json();
-                    if (jsonData.blogs && Array.isArray(jsonData.blogs)) {
-                        this.blogs = jsonData.blogs;
-                        this.saveBlogs();
-                        this.renderBlogs();
-                        console.log('Loaded from blogs.json');
-                    }
-                } else {
-                    console.log('blogs.json not found - starting with empty blog list');
-                }
-            } catch (error) {
-                console.log('No blogs.json found - starting fresh');
-            }
-        } else {
-            // If we have blogs in localStorage, sync completion status from blogs.json
-            await this.syncCompletionFromJson();
-        }
-    }
-
-    // Sync completion status from blogs.json to current blogs
-    async syncCompletionFromJson() {
+    // Load from blogs.json file
+    async loadFromJson() {
         try {
             const jsonResponse = await fetch('blogs.json');
             if (jsonResponse.ok) {
                 const jsonData = await jsonResponse.json();
                 if (jsonData.blogs && Array.isArray(jsonData.blogs)) {
-                    // Match by title and update completion status
-                    jsonData.blogs.forEach(jsonBlog => {
-                        const localBlog = this.blogs.find(b => 
-                            b.title.toLowerCase().trim() === jsonBlog.title.toLowerCase().trim()
-                        );
-                        if (localBlog && localBlog.completed !== jsonBlog.completed) {
-                            localBlog.completed = jsonBlog.completed;
-                        }
-                    });
-                    this.saveBlogs();
-                    console.log('Synced completion status from blogs.json');
+                    this.blogs = jsonData.blogs;
+                    this.saveBlogs(); // Save to sessionStorage
+                    console.log('Loaded from blogs.json');
+                } else {
+                    console.log('Invalid blogs.json format');
                 }
+            } else {
+                console.log('blogs.json not found - starting fresh');
             }
         } catch (error) {
-            console.log('Could not sync from blogs.json');
+            console.log('Error loading blogs.json:', error);
         }
     }
 
@@ -95,9 +54,9 @@ class BlogManager {
             .trim();
     }
 
-    // Save blogs to localStorage
+    // Save blogs to sessionStorage
     saveBlogs() {
-        localStorage.setItem('blogs', JSON.stringify(this.blogs));
+        sessionStorage.setItem('blogs', JSON.stringify(this.blogs));
     }
 
     // Setup event listeners
@@ -171,9 +130,6 @@ class BlogManager {
         document.getElementById('settingsBtn').addEventListener('click', () => this.openSettings());
         document.querySelector('.close').addEventListener('click', () => this.closeSettings());
         document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
-
-        // Import from blogs.json
-        document.getElementById('importJsonBtn').addEventListener('click', () => this.importFromJson());
 
         // Sync to GitHub
         document.getElementById('syncBtn').addEventListener('click', () => this.syncToGitHub());
@@ -426,7 +382,7 @@ class BlogManager {
         }
 
         const settings = { token, repo, branch };
-        localStorage.setItem('githubSettings', JSON.stringify(settings));
+        sessionStorage.setItem('githubSettings', JSON.stringify(settings));
         
         this.closeSettings();
         this.showToast('Settings saved successfully!', 'success');
@@ -434,7 +390,7 @@ class BlogManager {
 
     // Get settings
     getSettings() {
-        const settings = localStorage.getItem('githubSettings');
+        const settings = sessionStorage.getItem('githubSettings');
         return settings ? JSON.parse(settings) : {};
     }
 
@@ -457,7 +413,7 @@ class BlogManager {
             this.saveBlogs();
             
             // Create backup before sync
-            localStorage.setItem('blogs_backup', JSON.stringify(this.blogs));
+            sessionStorage.setItem('blogs_backup', JSON.stringify(this.blogs));
             
             // Prepare blog data
             const blogData = {
@@ -575,8 +531,9 @@ class BlogManager {
             
             const jsonData = await response.json();
             if (jsonData.blogs && Array.isArray(jsonData.blogs)) {
+                // Replace all blogs with data from JSON
                 this.blogs = jsonData.blogs;
-                this.saveBlogs();
+                this.saveBlogs(); // Save to sessionStorage
                 this.renderBlogs();
                 this.renderCalendar();
                 this.showToast(`Successfully imported ${this.blogs.length} blogs from JSON!`, 'success');
@@ -843,7 +800,7 @@ class BlogManager {
             blog.scheduledDate = this.formatDate(scheduleDate);
         });
 
-        this.saveBlogs();
+        this.saveBlogs(); // Save to sessionStorage immediately
         this.renderCalendar();
         this.showToast(`Successfully scheduled ${blogsToSchedule.length} blog(s) for the next ${blogsToSchedule.length} days!`, 'success');
     }
