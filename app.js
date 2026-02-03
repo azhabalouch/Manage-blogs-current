@@ -35,69 +35,55 @@ class BlogManager {
         }
     }
 
-    // Load existing blog titles from blogshave.txt (initial setup)
+    // Load existing blogs from blogs.json only
     async loadExistingFiles() {
         if (this.blogs.length === 0) {
+            // Load from blogs.json
             try {
-                const response = await fetch('blogshave.txt');
-                const text = await response.text();
-                const files = text.split('\n').filter(line => line.trim());
-                
-                files.forEach((file, index) => {
-                    const title = this.extractTitleFromFilename(file);
-                    this.blogs.push({
-                        id: Date.now() + index,
-                        title: title,
-                        completed: false,
-                        createdAt: new Date().toISOString()
-                    });
-                });
-                
-                this.saveBlogs();
-                this.renderBlogs();
+                const jsonResponse = await fetch('blogs.json');
+                if (jsonResponse.ok) {
+                    const jsonData = await jsonResponse.json();
+                    if (jsonData.blogs && Array.isArray(jsonData.blogs)) {
+                        this.blogs = jsonData.blogs;
+                        this.saveBlogs();
+                        this.renderBlogs();
+                        console.log('Loaded from blogs.json');
+                    }
+                } else {
+                    console.log('blogs.json not found - starting with empty blog list');
+                }
             } catch (error) {
-                console.log('No existing files to load');
+                console.log('No blogs.json found - starting fresh');
             }
+        } else {
+            // If we have blogs in localStorage, sync completion status from blogs.json
+            await this.syncCompletionFromJson();
         }
-        
-        // Mark uploaded blogs as completed
-        await this.markUploadedBlogs();
     }
 
-    // Mark blogs from uploaded.txt as completed
-    async markUploadedBlogs() {
+    // Sync completion status from blogs.json to current blogs
+    async syncCompletionFromJson() {
         try {
-            const response = await fetch('uploaded.txt');
-            const text = await response.text();
-            const uploadedSlugs = text.split('\n').filter(line => line.trim());
-            
-            let markedCount = 0;
-            uploadedSlugs.forEach(slug => {
-                const blog = this.blogs.find(b => this.titleToSlug(b.title) === slug.trim());
-                if (blog && !blog.completed) {
-                    blog.completed = true;
-                    markedCount++;
+            const jsonResponse = await fetch('blogs.json');
+            if (jsonResponse.ok) {
+                const jsonData = await jsonResponse.json();
+                if (jsonData.blogs && Array.isArray(jsonData.blogs)) {
+                    // Match by title and update completion status
+                    jsonData.blogs.forEach(jsonBlog => {
+                        const localBlog = this.blogs.find(b => 
+                            b.title.toLowerCase().trim() === jsonBlog.title.toLowerCase().trim()
+                        );
+                        if (localBlog && localBlog.completed !== jsonBlog.completed) {
+                            localBlog.completed = jsonBlog.completed;
+                        }
+                    });
+                    this.saveBlogs();
+                    console.log('Synced completion status from blogs.json');
                 }
-            });
-            
-            if (markedCount > 0) {
-                this.saveBlogs();
-                this.renderBlogs();
-                this.showToast(`${markedCount} uploaded blog(s) marked as completed ✓`, 'success');
             }
         } catch (error) {
-            console.log('No uploaded.txt file found');
+            console.log('Could not sync from blogs.json');
         }
-    }
-
-    // Convert blog title to URL slug format
-    titleToSlug(title) {
-        return title
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .trim();
     }
 
     // Extract clean title from filename
@@ -185,6 +171,9 @@ class BlogManager {
         document.getElementById('settingsBtn').addEventListener('click', () => this.openSettings());
         document.querySelector('.close').addEventListener('click', () => this.closeSettings());
         document.getElementById('saveSettingsBtn').addEventListener('click', () => this.saveSettings());
+
+        // Import from blogs.json
+        document.getElementById('importJsonBtn').addEventListener('click', () => this.importFromJson());
 
         // Sync to GitHub
         document.getElementById('syncBtn').addEventListener('click', () => this.syncToGitHub());
@@ -573,6 +562,31 @@ class BlogManager {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Import data from blogs.json file
+    async importFromJson() {
+        try {
+            const response = await fetch('blogs.json');
+            if (!response.ok) {
+                this.showToast('blogs.json not found in directory', 'error');
+                return;
+            }
+            
+            const jsonData = await response.json();
+            if (jsonData.blogs && Array.isArray(jsonData.blogs)) {
+                this.blogs = jsonData.blogs;
+                this.saveBlogs();
+                this.renderBlogs();
+                this.renderCalendar();
+                this.showToast(`Successfully imported ${this.blogs.length} blogs from JSON!`, 'success');
+            } else {
+                this.showToast('Invalid JSON format', 'error');
+            }
+        } catch (error) {
+            console.error('Import error:', error);
+            this.showToast('Failed to import from blogs.json', 'error');
+        }
     }
 
     // Export data as JSON file for manual backup
