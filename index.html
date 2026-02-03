@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Content Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 Blog Content Manager</h1>
+            <div class="header-actions">
+                <button id="settingsBtn" class="btn btn-secondary">⚙️ Settings</button>
+                <button id="syncBtn" class="btn btn-primary">🔄 Sync to GitHub</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="add-blog-section">
+                <input type="text" id="blogTitleInput" placeholder="Enter blog title..." />
+                <button id="addBlogBtn" class="btn btn-success">➕ Add Blog</button>
+            </div>
+
+            <!-- Bulk Upload Zone -->
+            <div class="bulk-upload-section">
+                <div id="dropZone" class="drop-zone">
+                    <div class="drop-zone-icon">📁</div>
+                    <h3>Bulk Upload</h3>
+                    <p>Drag & drop markdown or document files here</p>
+                    <p class="drop-zone-hint">or click to browse files</p>
+                    <input type="file" id="fileInput" multiple accept=".md,.txt,.docx" hidden />
+                </div>
+            </div>
+
+            <div class="blog-list-container">
+                <div class="list-header">
+                    <h2>Blog List</h2>
+                    <span id="blogCount" class="count-badge">0</span>
+                </div>
+                <div class="search-section">
+                    <input type="text" id="blogSearch" placeholder="🔍 Search blogs..." />
+                    <button id="clearSearch" class="clear-search-btn" style="display: none;">✕</button>
+                </div>
+                <div class="blog-tabs">
+                    <button class="tab-btn active" data-tab="all">All <span id="allCount" class="tab-count">0</span></button>
+                    <button class="tab-btn" data-tab="todo">To-Do <span id="todoCount" class="tab-count">0</span></button>
+                    <button class="tab-btn" data-tab="uploaded">Uploaded <span id="uploadedCount" class="tab-count">0</span></button>
+                </div>
+                <div id="blogList" class="blog-list"></div>
+            </div>
+
+            <!-- Calendar Section -->
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <div class="calendar-title-section">
+                        <h2>📅 Content Schedule</h2>
+                        <button id="autoScheduleBtn" class="btn btn-primary">⚡ Auto-Schedule 30</button>
+                    </div>
+                    <div class="calendar-controls">
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="monthly">Monthly</button>
+                            <button class="view-btn" data-view="weekly">Weekly</button>
+                            <button class="view-btn" data-view="daily">Daily</button>
+                        </div>
+                        <div class="calendar-nav">
+                            <button id="prevBtn" class="nav-btn">◀</button>
+                            <span id="currentDate" class="current-date"></span>
+                            <button id="nextBtn" class="nav-btn">▶</button>
+                            <button id="todayBtn" class="btn btn-secondary">Today</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="calendarView" class="calendar-view"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>GitHub Settings</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="githubToken">Personal Access Token</label>
+                    <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxxx" />
+                    <small>Generate at: GitHub → Settings → Developer settings → Personal access tokens</small>
+                </div>
+                <div class="form-group">
+                    <label for="repoName">Repository Name</label>
+                    <input type="text" id="repoName" placeholder="username/repository" />
+                    <small>Format: owner/repo (e.g., johndoe/my-blog)</small>
+                </div>
+                <div class="form-group">
+                    <label for="branchName">Branch</label>
+                    <input type="text" id="branchName" placeholder="main" value="main" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="saveSettingsBtn" class="btn btn-primary">💾 Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
