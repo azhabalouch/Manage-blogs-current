@@ -9,7 +9,7 @@
     {
       "id": 1770146531535.931,
       "title": "AI Automation Workflow for Freelancers .docx",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
@@ -27,7 +27,7 @@
     {
       "id": 1770146531535.4636,
       "title": "AI Tools for Startups .docx",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
@@ -75,13 +75,13 @@
     {
       "id": 1770146531535.513,
       "title": "Future of AI .docx",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
       "id": 1770146531535.6116,
       "title": "How AI Is Changing the SaaS Business Model in 2025 .docx",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
@@ -151,6 +151,6 @@
       "createdAt": "2026-02-03T19:22:11.535Z"
     }
   ],
-  "lastSync": "2026-02-03T20:05:39.549Z",
+  "lastSync": "2026-02-05T14:02:27.786Z",
   "totalBlogs": 25
 }
