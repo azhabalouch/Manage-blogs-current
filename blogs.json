@@ -135,7 +135,7 @@
     {
       "id": 1770146531535.2234,
       "title": "How to Learn AI for Free in 2025 .docx",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
@@ -153,7 +153,7 @@
     {
       "id": 1770146531535.4456,
       "title": "AI Tools for social media marketing",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
@@ -181,6 +181,6 @@
       "createdAt": "2026-02-03T19:22:11.535Z"
     }
   ],
-  "lastSync": "2026-02-05T16:47:17.875Z",
+  "lastSync": "2026-02-05T18:09:24.958Z",
   "totalBlogs": 30
 }
