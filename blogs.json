@@ -1,6 +1,36 @@
 {
   "blogs": [
     {
+      "id": 1770309729149,
+      "title": "Using machine learning for stock picking humanised finalised",
+      "completed": false,
+      "createdAt": "2026-02-05T16:42:09.120Z"
+    },
+    {
+      "id": 1770309714921,
+      "title": "leverage ai powered robo advisors for investment in 2025",
+      "completed": false,
+      "createdAt": "2026-02-05T16:41:54.893Z"
+    },
+    {
+      "id": 1770309697466,
+      "title": "Insurance policies powered by ai humanised finalised",
+      "completed": false,
+      "createdAt": "2026-02-05T16:41:37.439Z"
+    },
+    {
+      "id": 1770309681001,
+      "title": "AI powered cybersecurity tools every business needs",
+      "completed": false,
+      "createdAt": "2026-02-05T16:41:20.975Z"
+    },
+    {
+      "id": 1770309654252,
+      "title": "AI tools that help you automate your budgeting HUMANISED FINALISED",
+      "completed": false,
+      "createdAt": "2026-02-05T16:40:54.227Z"
+    },
+    {
       "id": 1770146531534.7993,
       "title": "10 Best AI Writing Tools for Content Creators in 2025 .docx",
       "completed": true,
@@ -151,6 +181,6 @@
       "createdAt": "2026-02-03T19:22:11.535Z"
     }
   ],
-  "lastSync": "2026-02-05T14:02:27.786Z",
-  "totalBlogs": 25
+  "lastSync": "2026-02-05T16:47:17.875Z",
+  "totalBlogs": 30
 }
