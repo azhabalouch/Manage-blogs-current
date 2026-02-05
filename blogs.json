@@ -159,7 +159,7 @@
     {
       "id": 1770146531535.5237,
       "title": "The Role of AI in Education .docx",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
@@ -181,6 +181,6 @@
       "createdAt": "2026-02-03T19:22:11.535Z"
     }
   ],
-  "lastSync": "2026-02-05T18:09:24.958Z",
+  "lastSync": "2026-02-05T19:10:43.464Z",
   "totalBlogs": 30
 }
