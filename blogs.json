@@ -21,7 +21,7 @@
     {
       "id": 1770309681001,
       "title": "AI powered cybersecurity tools every business needs",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-05T16:41:20.975Z"
     },
     {
@@ -117,7 +117,7 @@
     {
       "id": 1770146531535.6628,
       "title": "How AI predicts real estate market trends .docx",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
@@ -141,7 +141,7 @@
     {
       "id": 1770146531535.104,
       "title": "How to Use AI (1).docx",
-      "completed": false,
+      "completed": true,
       "createdAt": "2026-02-03T19:22:11.535Z"
     },
     {
@@ -181,6 +181,6 @@
       "createdAt": "2026-02-03T19:22:11.535Z"
     }
   ],
-  "lastSync": "2026-02-05T19:10:43.464Z",
+  "lastSync": "2026-02-10T19:50:33.800Z",
   "totalBlogs": 30
 }
